@@ -463,8 +463,16 @@ function Slider:Render(x, y, width, hovered, theme, deltaTime)
     self.Drawings.label.Color = hovered and theme.Text or theme.TextDim
     self.Drawings.label.Position = Vector2.new(x + 10, y + 4)
 
-    -- Value text (right side)
-    self.Drawings.value.Text = tostring(self.Value) .. self.Suffix
+    -- Value text (right side) - format to avoid floating point precision issues
+    local displayValue = self.Value
+    if self.Step >= 1 then
+        displayValue = math.floor(displayValue + 0.5)
+    else
+        -- Round to same decimal places as step
+        local decimals = math.max(0, math.ceil(-math.log10(self.Step)))
+        displayValue = math.floor(displayValue * 10^decimals + 0.5) / 10^decimals
+    end
+    self.Drawings.value.Text = tostring(displayValue) .. self.Suffix
     self.Drawings.value.Color = theme.Accent
     self.Drawings.value.Position = Vector2.new(x + width - 45, y + 4)
 
